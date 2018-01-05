@@ -342,9 +342,6 @@ angular.module('pascalprecht.translate').provider('$translate', [
           $rootScope.$emit('$translateChangeEnd');
         };
         var loadAsync = function (key) {
-          if (!key) {
-            throw 'No language key specified for loading.';
-          }
           var deferred = $q.defer();
           $rootScope.$emit('$translateLoadingStart');
           pendingLoader = true;
@@ -360,7 +357,7 @@ angular.module('pascalprecht.translate').provider('$translate', [
             }
             pendingLoader = false;
             deferred.resolve({
-              key: key,
+              key: key || data._headers && data._headers['content-language'] ? data._headers['content-language'].replace('-', '') : undefined,
               table: translationTable
             });
             $rootScope.$emit('$translateLoadingEnd');
@@ -523,7 +520,7 @@ angular.module('pascalprecht.translate').provider('$translate', [
                 }
               }
             }
-            $translate.use($translate.use());
+            $translate.use();
           }
           if ($fallbackWasString) {
             return $fallbackLanguage[0];
@@ -550,9 +547,6 @@ angular.module('pascalprecht.translate').provider('$translate', [
           return Storage;
         };
         $translate.use = function (key) {
-          if (!key) {
-            return $uses;
-          }
           var deferred = $q.defer();
           $rootScope.$emit('$translateChangeStart');
           if (!$translationTable[key] && $loaderFactory) {
@@ -674,7 +668,7 @@ angular.module('pascalprecht.translate').provider('$translate', [
         };
         if ($loaderFactory) {
           if (angular.equals($translationTable, {})) {
-            $translate.use($translate.use());
+            $translate.use();
           }
           if ($fallbackLanguage && $fallbackLanguage.length) {
             for (var i = 0, len = $fallbackLanguage.length; i < len; i++) {
